@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Test Web Analytics - Home</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 2rem; }
+    nav { margin-bottom: 1rem; }
+    nav a { margin-right: 1rem; text-decoration: none; color: blue; }
+    button { margin-right: 1rem; padding: 0.5rem 1rem; font-size: 1rem; }
+    #consent-banner { 
+      position: fixed; bottom: 1rem; left: 1rem; right: 1rem; background: #eee; padding: 1rem; border: 1px solid #ccc;
+      display: flex; align-items: center; justify-content: space-between; box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+  </style>
+
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+
+    function getCookie(name) {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop().split(';').shift();
+      return null;
+    }
+
+    const consentCookie = getCookie('cookie_consent');
+    if (!consentCookie) {
+      gtag('consent', 'default', {
+        'ad_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied',
+        'analytics_storage': 'denied'
+      });
+    } else {
+      try {
+        const consentData = JSON.parse(decodeURIComponent(consentCookie));
+        gtag('consent', 'update', consentData);
+      } catch (e) {
+        gtag('consent', 'default', {
+          'ad_storage': 'denied',
+          'ad_user_data': 'denied',
+          'ad_personalization': 'denied',
+          'analytics_storage': 'denied'
+        });
+      }
+    }
+  </script>
+
+  <!-- Google Tag Manager -->
+  <script>
+    (function(w,d,s,l,i){
+      w[l]=w[l]||[];
+      w[l].push({'gtm.start': new Date().getTime(), event:'gtm.js'});
+      var f=d.getElementsByTagName(s)[0],
+          j=d.createElement(s), dl=l!='dataLayer'?'&l='+l:'';
+      j.async=true;
+      j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;
+      f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-5DN9DJ9F');
+  </script>
+  <!-- End Google Tag Manager -->
+</head>
+<body>
+  <!-- Google Tag Manager (noscript) -->
+  <noscript>
+    <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5DN9DJ9F"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe>
+  </noscript>
+  <!-- End Google Tag Manager (noscript) -->
+
+  <!-- Navigace -->
+  <nav>
+    <a href="index.html">Home</a> |
+    <a href="product.html">Produkty</a> |
+    <a href="contact.html">Kontakt</a>
+  </nav>
+
+  <h1>Testovací stránka Webové analytiky</h1>
+  <p>Vyzkoušejte souhlas s cookies a aktualizaci consentu.</p>
+
+  <div id="consent-banner" style="display:none;">
+    <span>Souhlasíte se zpracováním cookies pro analytiku a reklamu?</span>
+    <div>
+      <button onclick="setConsent(true)">Ano, souhlasím</button>
+      <button onclick="setConsent(false)">Ne, nesouhlasím</button>
+    </div>
+  </div>
+
+  <form id="test-form">
+    <label for="name">Jméno:</label>
+    <input id="name" name="name" type="text" />
+    <button type="submit">Odeslat</button>
+  </form>
+
+  <script>
+    function setConsent(allowed) {
+      const consentData = allowed ? {
+        'ad_storage': 'granted',
+        'ad_user_data': 'granted',
+        'ad_personalization': 'granted',
+        'analytics_storage': 'granted'
+      } : {
+        'ad_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied',
+        'analytics_storage': 'denied'
+      };
+
+      document.cookie = "cookie_consent=" + encodeURIComponent(JSON.stringify(consentData)) + ";path=/;max-age=31536000";
+
+      
+      gtag('consent', 'update', consentData);
+      window.dataLayer.push({event: 'consent_update'});
+      document.getElementById('consent-banner').style.display = 'none';
+      
+    }
+
+    window.onload = function() {
+      if (!getCookie('cookie_consent')) {
+        document.getElementById('consent-banner').style.display = 'flex';
+      }
+    }
+
+    document.getElementById('test-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const name = document.getElementById('name').value;
+      gtag('event', 'form_submission', {
+        'event_category': 'Contact Form',
+        'event_label': name || 'no name'
+      });
+      alert('Formulář odeslán, event poslán do datalayer.');
+      this.reset();
+    });
+  </script>
+</body>
+</html>
